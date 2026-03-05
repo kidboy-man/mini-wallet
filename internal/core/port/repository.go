@@ -12,6 +12,8 @@ type UserRepository interface {
 	Create(ctx context.Context, user *domain.User) error
 	FindByUsername(ctx context.Context, username string) (*domain.User, error)
 	FindByID(ctx context.Context, id uuid.UUID) (*domain.User, error)
+	// SoftDelete sets deleted_at = NOW() for the given user.
+	SoftDelete(ctx context.Context, id uuid.UUID) error
 }
 
 // WalletRepository defines persistence operations for wallets.
@@ -23,6 +25,8 @@ type WalletRepository interface {
 	// Updates balance, locked_amount, version (version+1), updated_at WHERE id=$id AND version=$currentVersion.
 	// Returns domain.ErrOptimisticLock if no rows were affected.
 	UpdateBalanceWithVersion(ctx context.Context, wallet *domain.Wallet) error
+	// SoftDelete sets deleted_at = NOW() for the given wallet.
+	SoftDelete(ctx context.Context, id uuid.UUID) error
 }
 
 // TransactionRepository defines persistence operations for transactions.

@@ -76,3 +76,19 @@ func (r *userRepo) FindByID(ctx context.Context, id uuid.UUID) (*domain.User, er
 	}
 	return u, nil
 }
+
+func (r *userRepo) SoftDelete(ctx context.Context, id uuid.UUID) error {
+	q := infradb.GetQuerier(ctx, r.pool)
+	tag, err := q.Exec(ctx,
+		`UPDATE users SET deleted_at = NOW(), updated_at = NOW()
+		 WHERE id = $1 AND deleted_at IS NULL`,
+		id,
+	)
+	if err != nil {
+		return err
+	}
+	if tag.RowsAffected() == 0 {
+		return domain.ErrUserNotFound
+	}
+	return nil
+}

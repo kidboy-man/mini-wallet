@@ -34,8 +34,8 @@ func (r *walletRepo) Create(ctx context.Context, wallet *domain.Wallet) error {
 func (r *walletRepo) FindByUserID(ctx context.Context, userID uuid.UUID) (*domain.Wallet, error) {
 	q := infradb.GetQuerier(ctx, r.pool)
 	row := q.QueryRow(ctx,
-		`SELECT id, user_id, balance, locked_amount, version, created_at, updated_at
-		 FROM wallets WHERE user_id = $1`,
+		`SELECT id, user_id, balance, locked_amount, version, created_at, updated_at, deleted_at
+		 FROM wallets WHERE user_id = $1 AND deleted_at IS NULL`,
 		userID,
 	)
 	return scanWallet(row)
@@ -44,8 +44,8 @@ func (r *walletRepo) FindByUserID(ctx context.Context, userID uuid.UUID) (*domai
 func (r *walletRepo) FindByID(ctx context.Context, id uuid.UUID) (*domain.Wallet, error) {
 	q := infradb.GetQuerier(ctx, r.pool)
 	row := q.QueryRow(ctx,
-		`SELECT id, user_id, balance, locked_amount, version, created_at, updated_at
-		 FROM wallets WHERE id = $1`,
+		`SELECT id, user_id, balance, locked_amount, version, created_at, updated_at, deleted_at
+		 FROM wallets WHERE id = $1 AND deleted_at IS NULL`,
 		id,
 	)
 	return scanWallet(row)
@@ -56,7 +56,7 @@ func (r *walletRepo) UpdateBalanceWithVersion(ctx context.Context, wallet *domai
 	tag, err := q.Exec(ctx,
 		`UPDATE wallets
 		 SET balance = $1, locked_amount = $2, version = version + 1, updated_at = NOW()
-		 WHERE id = $3 AND version = $4`,
+		 WHERE id = $3 AND version = $4 AND deleted_at IS NULL`,
 		wallet.Balance, wallet.LockedAmount, wallet.ID, wallet.Version,
 	)
 	if err != nil {
@@ -68,9 +68,25 @@ func (r *walletRepo) UpdateBalanceWithVersion(ctx context.Context, wallet *domai
 	return nil
 }
 
+func (r *walletRepo) SoftDelete(ctx context.Context, id uuid.UUID) error {
+	q := infradb.GetQuerier(ctx, r.pool)
+	tag, err := q.Exec(ctx,
+		`UPDATE wallets SET deleted_at = NOW(), updated_at = NOW()
+		 WHERE id = $1 AND deleted_at IS NULL`,
+		id,
+	)
+	if err != nil {
+		return err
+	}
+	if tag.RowsAffected() == 0 {
+		return domain.ErrWalletNotFound
+	}
+	return nil
+}
+
 func scanWallet(row pgx.Row) (*domain.Wallet, error) {
 	w := &domain.Wallet{}
-	err := row.Scan(&w.ID, &w.UserID, &w.Balance, &w.LockedAmount, &w.Version, &w.CreatedAt, &w.UpdatedAt)
+	err := row.Scan(&w.ID, &w.UserID, &w.Balance, &w.LockedAmount, &w.Version, &w.CreatedAt, &w.UpdatedAt, &w.DeletedAt)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return nil, domain.ErrWalletNotFound

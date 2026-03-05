@@ -15,6 +15,7 @@ type Wallet struct {
 	Version      int
 	CreatedAt    time.Time
 	UpdatedAt    time.Time
+	DeletedAt    *time.Time
 }
 
 // AvailableBalance returns the spendable balance (balance - locked_amount).

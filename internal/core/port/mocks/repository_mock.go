@@ -86,6 +86,20 @@ func (mr *MockUserRepositoryMockRecorder) FindByUsername(ctx, username any) *gom
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindByUsername", reflect.TypeOf((*MockUserRepository)(nil).FindByUsername), ctx, username)
 }
 
+// SoftDelete mocks base method.
+func (m *MockUserRepository) SoftDelete(ctx context.Context, id uuid.UUID) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SoftDelete", ctx, id)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// SoftDelete indicates an expected call of SoftDelete.
+func (mr *MockUserRepositoryMockRecorder) SoftDelete(ctx, id any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SoftDelete", reflect.TypeOf((*MockUserRepository)(nil).SoftDelete), ctx, id)
+}
+
 // MockWalletRepository is a mock of WalletRepository interface.
 type MockWalletRepository struct {
 	ctrl     *gomock.Controller
@@ -152,6 +166,20 @@ func (m *MockWalletRepository) FindByUserID(ctx context.Context, userID uuid.UUI
 func (mr *MockWalletRepositoryMockRecorder) FindByUserID(ctx, userID any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindByUserID", reflect.TypeOf((*MockWalletRepository)(nil).FindByUserID), ctx, userID)
+}
+
+// SoftDelete mocks base method.
+func (m *MockWalletRepository) SoftDelete(ctx context.Context, id uuid.UUID) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SoftDelete", ctx, id)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// SoftDelete indicates an expected call of SoftDelete.
+func (mr *MockWalletRepositoryMockRecorder) SoftDelete(ctx, id any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SoftDelete", reflect.TypeOf((*MockWalletRepository)(nil).SoftDelete), ctx, id)
 }
 
 // UpdateBalanceWithVersion mocks base method.
