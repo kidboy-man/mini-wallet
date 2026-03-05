@@ -1,0 +1,10 @@
+DROP INDEX IF EXISTS idx_transactions_parent_id;
+DROP INDEX IF EXISTS idx_transactions_status_pending;
+DROP INDEX IF EXISTS idx_transactions_to_id;
+DROP INDEX IF EXISTS idx_transactions_from_id;
+DROP INDEX IF EXISTS uidx_transactions_reference;
+DROP TABLE IF EXISTS transactions;
+DROP INDEX IF EXISTS uidx_users_username;
+DROP TABLE IF EXISTS wallets;
+DROP TABLE IF EXISTS users;
+DROP EXTENSION IF EXISTS "uuid-ossp";
