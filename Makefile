@@ -51,6 +51,10 @@ docker-down:
 docker-clean:
 	docker compose down -v
 
+## Run integration tests (requires Docker)
+test-integration:
+	go test -v -count=1 -tags=integration -timeout=120s ./internal/test/integration/...
+
 ## Tidy go modules
 tidy:
 	go mod tidy

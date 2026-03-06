@@ -264,6 +264,21 @@ func (mr *MockTransactionRepositoryMockRecorder) FindByID(ctx, id any) *gomock.C
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindByID", reflect.TypeOf((*MockTransactionRepository)(nil).FindByID), ctx, id)
 }
 
+// FindByToIDAndReference mocks base method.
+func (m *MockTransactionRepository) FindByToIDAndReference(ctx context.Context, toID uuid.UUID, referenceID string) (*domain.Transaction, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "FindByToIDAndReference", ctx, toID, referenceID)
+	ret0, _ := ret[0].(*domain.Transaction)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// FindByToIDAndReference indicates an expected call of FindByToIDAndReference.
+func (mr *MockTransactionRepositoryMockRecorder) FindByToIDAndReference(ctx, toID, referenceID any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindByToIDAndReference", reflect.TypeOf((*MockTransactionRepository)(nil).FindByToIDAndReference), ctx, toID, referenceID)
+}
+
 // UpdateStatus mocks base method.
 func (m *MockTransactionRepository) UpdateStatus(ctx context.Context, id uuid.UUID, status domain.TransactionStatus, currentVersion int) error {
 	m.ctrl.T.Helper()

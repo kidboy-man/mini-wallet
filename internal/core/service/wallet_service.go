@@ -46,10 +46,9 @@ func (s *walletService) TopUp(ctx context.Context, userID uuid.UUID, amount deci
 		return nil, nil, err
 	}
 
-	// Idempotency check for topup: use (wallet.ID as from_id surrogate, referenceID).
-	// TopUps use to_id only, so we store wallet.ID as a logical reference using to_id approach.
+	// Idempotency check for topup: use (wallet.ID, referenceID).
 	// We perform check before insert; unique constraint on DB is the final safety net.
-	existing, err := s.txRepo.FindByFromIDAndReference(ctx, wallet.ID, referenceID)
+	existing, err := s.txRepo.FindByToIDAndReference(ctx, wallet.ID, referenceID)
 	if err == domain.ErrDuplicateReference && existing != nil {
 		updatedWallet, wErr := s.walletRepo.FindByUserID(ctx, userID)
 		if wErr != nil {
@@ -121,6 +120,10 @@ func (s *walletService) Withdraw(ctx context.Context, userID uuid.UUID, amount d
 				continue
 			}
 			return nil, nil, domain.ErrOptimisticLock
+		}
+		// For duplicate reference, preserve the transaction and wallet
+		if err == domain.ErrDuplicateReference {
+			return tx, wallet, err
 		}
 		return nil, nil, err
 	}
@@ -224,6 +227,10 @@ func (s *walletService) Transfer(ctx context.Context, fromUserID uuid.UUID, toUs
 				continue
 			}
 			return nil, nil, domain.ErrOptimisticLock
+		}
+		// For duplicate reference, preserve the transaction and wallet
+		if err == domain.ErrDuplicateReference {
+			return tx, wallet, err
 		}
 		return nil, nil, err
 	}

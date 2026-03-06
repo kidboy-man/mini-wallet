@@ -83,7 +83,7 @@ func TestWalletService_TopUp(t *testing.T) {
 		}
 
 		walletRepo.EXPECT().FindByUserID(ctx, userID).Return(wallet, nil)
-		txRepo.EXPECT().FindByFromIDAndReference(ctx, walletID, "ref-001").Return(nil, nil)
+		txRepo.EXPECT().FindByToIDAndReference(ctx, walletID, "ref-001").Return(nil, nil)
 		withTxPassthrough(txManager)
 		txRepo.EXPECT().Create(gomock.Any(), gomock.Any()).Return(nil)
 		walletRepo.EXPECT().UpdateBalanceWithVersion(gomock.Any(), gomock.Any()).Return(nil)
@@ -110,7 +110,7 @@ func TestWalletService_TopUp(t *testing.T) {
 		}
 
 		walletRepo.EXPECT().FindByUserID(ctx, userID).Return(wallet, nil)
-		txRepo.EXPECT().FindByFromIDAndReference(ctx, walletID, "ref-001").Return(existingTx, domain.ErrDuplicateReference)
+		txRepo.EXPECT().FindByToIDAndReference(ctx, walletID, "ref-001").Return(existingTx, domain.ErrDuplicateReference)
 		walletRepo.EXPECT().FindByUserID(ctx, userID).Return(wallet, nil)
 
 		tx, updatedWallet, err := svc.TopUp(ctx, userID, amount, "ref-001")

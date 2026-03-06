@@ -38,6 +38,9 @@ type TransactionRepository interface {
 	// FindByFromIDAndReference returns the existing transaction for idempotency check.
 	// Returns domain.ErrDuplicateReference if a matching record exists.
 	FindByFromIDAndReference(ctx context.Context, fromID uuid.UUID, referenceID string) (*domain.Transaction, error)
+	// FindByToIDAndReference returns the existing transaction by recipient and reference for TopUp idempotency.
+	// Returns domain.ErrDuplicateReference if a matching record exists.
+	FindByToIDAndReference(ctx context.Context, toID uuid.UUID, referenceID string) (*domain.Transaction, error)
 }
 
 // TxManager abstracts database transaction management.

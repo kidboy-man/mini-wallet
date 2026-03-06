@@ -5,12 +5,12 @@ import (
 	"errors"
 
 	"github.com/google/uuid"
-	"github.com/jackc/pgx/v5"
-	"github.com/jackc/pgx/v5/pgconn"
-	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/ingunawandra/mini-wallet/internal/core/domain"
 	"github.com/ingunawandra/mini-wallet/internal/core/port"
 	infradb "github.com/ingunawandra/mini-wallet/internal/infrastructure/db"
+	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgconn"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type txRepo struct {
@@ -78,7 +78,27 @@ func (r *txRepo) FindByFromIDAndReference(ctx context.Context, fromID uuid.UUID,
 	if err != nil {
 		return nil, err
 	}
-	return tx, domain.ErrDuplicateReference
+	if tx != nil {
+		return tx, domain.ErrDuplicateReference
+	}
+	return nil, nil
+}
+
+func (r *txRepo) FindByToIDAndReference(ctx context.Context, toID uuid.UUID, referenceID string) (*domain.Transaction, error) {
+	q := infradb.GetQuerier(ctx, r.pool)
+	row := q.QueryRow(ctx,
+		`SELECT id, from_id, to_id, reference_id, parent_transaction_id, action, status, amount, version, created_at, updated_at
+		 FROM transactions WHERE to_id = $1 AND reference_id = $2`,
+		toID, referenceID,
+	)
+	tx, err := scanTransaction(row)
+	if err != nil {
+		return nil, err
+	}
+	if tx != nil {
+		return tx, domain.ErrDuplicateReference
+	}
+	return nil, nil
 }
 
 func scanTransaction(row pgx.Row) (*domain.Transaction, error) {
