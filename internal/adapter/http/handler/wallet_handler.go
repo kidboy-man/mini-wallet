@@ -20,6 +20,16 @@ func NewWalletHandler(walletService port.WalletService) *WalletHandler {
 	return &WalletHandler{walletService: walletService}
 }
 
+// GetBalance godoc
+// @Summary Get current wallet balance
+// @Tags wallets
+// @Produce json
+// @Security BearerAuth
+// @Success 200 {object} BalanceSuccessResponse
+// @Failure 401 {object} ErrorResponse
+// @Failure 404 {object} ErrorResponse
+// @Failure 500 {object} ErrorResponse
+// @Router /wallets/me/balance [get]
 func (h *WalletHandler) GetBalance(c *gin.Context) {
 	userID := mustUserID(c)
 
@@ -41,6 +51,18 @@ type topupRequest struct {
 	ReferenceID string `json:"reference_id" binding:"required,max=100"`
 }
 
+// TopUp godoc
+// @Summary Top up wallet balance
+// @Tags wallets
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param request body topupRequest true "Top up request"
+// @Success 201 {object} TopUpSuccessResponse
+// @Failure 400 {object} ErrorResponse
+// @Failure 401 {object} ErrorResponse
+// @Failure 500 {object} ErrorResponse
+// @Router /wallets/topup [post]
 func (h *WalletHandler) TopUp(c *gin.Context) {
 	var req topupRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -79,6 +101,19 @@ type withdrawRequest struct {
 	ReferenceID string `json:"reference_id" binding:"required,max=100"`
 }
 
+// Withdraw godoc
+// @Summary Withdraw from wallet balance
+// @Tags wallets
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param request body withdrawRequest true "Withdraw request"
+// @Success 201 {object} WithdrawTransferSuccessResponse
+// @Failure 400 {object} ErrorResponse
+// @Failure 401 {object} ErrorResponse
+// @Failure 422 {object} ErrorResponse
+// @Failure 500 {object} ErrorResponse
+// @Router /wallets/withdraw [post]
 func (h *WalletHandler) Withdraw(c *gin.Context) {
 	var req withdrawRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -118,6 +153,20 @@ type transferRequest struct {
 	ReferenceID string `json:"reference_id" binding:"required,max=100"`
 }
 
+// Transfer godoc
+// @Summary Transfer wallet balance to another user
+// @Tags wallets
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param request body transferRequest true "Transfer request"
+// @Success 201 {object} WithdrawTransferSuccessResponse
+// @Failure 400 {object} ErrorResponse
+// @Failure 401 {object} ErrorResponse
+// @Failure 404 {object} ErrorResponse
+// @Failure 422 {object} ErrorResponse
+// @Failure 500 {object} ErrorResponse
+// @Router /wallets/transfer [post]
 func (h *WalletHandler) Transfer(c *gin.Context) {
 	var req transferRequest
 	if err := c.ShouldBindJSON(&req); err != nil {

@@ -1,0 +1,375 @@
+basePath: /api/v1
+definitions:
+  handler.BalanceResponseData:
+    properties:
+      available_balance:
+        type: string
+      balance:
+        type: string
+      locked_amount:
+        type: string
+    type: object
+  handler.BalanceSuccessResponse:
+    properties:
+      data:
+        $ref: '#/definitions/handler.BalanceResponseData'
+      success:
+        type: boolean
+    type: object
+  handler.ErrorDetail:
+    properties:
+      code:
+        type: string
+      message:
+        type: string
+    type: object
+  handler.ErrorResponse:
+    properties:
+      error:
+        $ref: '#/definitions/handler.ErrorDetail'
+      success:
+        type: boolean
+    type: object
+  handler.LoginResponseData:
+    properties:
+      access_token:
+        type: string
+      expires_at:
+        type: string
+    type: object
+  handler.LoginSuccessResponse:
+    properties:
+      data:
+        $ref: '#/definitions/handler.LoginResponseData'
+      success:
+        type: boolean
+    type: object
+  handler.RegisterResponseData:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: string
+      username:
+        type: string
+    type: object
+  handler.RegisterSuccessResponse:
+    properties:
+      data:
+        $ref: '#/definitions/handler.RegisterResponseData'
+      success:
+        type: boolean
+    type: object
+  handler.TopUpResponseData:
+    properties:
+      balance:
+        type: string
+      transaction_id:
+        type: string
+    type: object
+  handler.TopUpSuccessResponse:
+    properties:
+      data:
+        $ref: '#/definitions/handler.TopUpResponseData'
+      success:
+        type: boolean
+    type: object
+  handler.WithdrawTransferResponseData:
+    properties:
+      available_balance:
+        type: string
+      transaction_id:
+        type: string
+    type: object
+  handler.WithdrawTransferSuccessResponse:
+    properties:
+      data:
+        $ref: '#/definitions/handler.WithdrawTransferResponseData'
+      success:
+        type: boolean
+    type: object
+  handler.loginRequest:
+    properties:
+      password:
+        type: string
+      username:
+        type: string
+    required:
+    - password
+    - username
+    type: object
+  handler.registerRequest:
+    properties:
+      password:
+        minLength: 8
+        type: string
+      username:
+        maxLength: 50
+        minLength: 3
+        type: string
+    required:
+    - password
+    - username
+    type: object
+  handler.topupRequest:
+    properties:
+      amount:
+        type: string
+      reference_id:
+        maxLength: 100
+        type: string
+    required:
+    - amount
+    - reference_id
+    type: object
+  handler.transferRequest:
+    properties:
+      amount:
+        type: string
+      reference_id:
+        maxLength: 100
+        type: string
+      to_username:
+        type: string
+    required:
+    - amount
+    - reference_id
+    - to_username
+    type: object
+  handler.withdrawRequest:
+    properties:
+      amount:
+        type: string
+      reference_id:
+        maxLength: 100
+        type: string
+    required:
+    - amount
+    - reference_id
+    type: object
+info:
+  contact: {}
+  description: REST API for user authentication and wallet operations.
+  title: Mini Wallet API
+  version: "1.0"
+paths:
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Authenticates user and returns JWT access token.
+      parameters:
+      - description: Login request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handler.loginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.LoginSuccessResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      summary: Login user
+      tags:
+      - auth
+  /auth/register:
+    post:
+      consumes:
+      - application/json
+      description: Creates a new user account and wallet.
+      parameters:
+      - description: Register request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handler.registerRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/handler.RegisterSuccessResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      summary: Register a new user
+      tags:
+      - auth
+  /wallets/me/balance:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.BalanceSuccessResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get current wallet balance
+      tags:
+      - wallets
+  /wallets/topup:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Top up request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handler.topupRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/handler.TopUpSuccessResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Top up wallet balance
+      tags:
+      - wallets
+  /wallets/transfer:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Transfer request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handler.transferRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/handler.WithdrawTransferSuccessResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Transfer wallet balance to another user
+      tags:
+      - wallets
+  /wallets/withdraw:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Withdraw request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handler.withdrawRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/handler.WithdrawTransferSuccessResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Withdraw from wallet balance
+      tags:
+      - wallets
+schemes:
+- http
+- https
+securityDefinitions:
+  BearerAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

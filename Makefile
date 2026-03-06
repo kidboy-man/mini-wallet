@@ -3,7 +3,7 @@ MAIN_PATH=./cmd/server
 MIGRATE_PATH=./migrations
 DATABASE_URL?=$(shell grep DATABASE_URL .env 2>/dev/null | cut -d '=' -f2)
 
-.PHONY: build run test test-cover docker-up docker-down migrate-up migrate-down migrate-create mock-gen tidy
+.PHONY: build run test test-cover docker-up docker-down migrate-up migrate-down migrate-create mock-gen swagger tidy
 
 ## Build the binary
 build:
@@ -15,11 +15,11 @@ run:
 
 ## Run all tests
 test:
-	go test ./... -v -count=1
+	go test ./... -v -count=1 -race
 
 ## Run tests with coverage report
 test-cover:
-	go test ./... -coverprofile=coverage.out
+	go test ./... -race -coverprofile=coverage.out
 	go tool cover -html=coverage.out -o coverage.html
 	@echo "Coverage report: coverage.html"
 
@@ -39,6 +39,10 @@ migrate-create:
 mock-gen:
 	go generate ./...
 
+## Generate Swagger/OpenAPI docs
+swagger:
+	go run github.com/swaggo/swag/cmd/swag@latest init -g cmd/server/main.go -o docs --parseInternal
+
 ## Start Docker services (postgres + app)
 docker-up:
 	docker compose up --build -d
@@ -53,7 +57,7 @@ docker-clean:
 
 ## Run integration tests (requires Docker)
 test-integration:
-	go test -v -count=1 -tags=integration -timeout=120s ./internal/test/integration/...
+	go test -v -count=1 -race -tags=integration -timeout=120s ./internal/test/integration/...
 
 ## Tidy go modules
 tidy:

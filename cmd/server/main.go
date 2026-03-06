@@ -12,7 +12,11 @@ import (
 	"github.com/golang-migrate/migrate/v4"
 	_ "github.com/golang-migrate/migrate/v4/database/postgres"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
+	swaggerfiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
+
 	"github.com/ingunawandra/mini-wallet/config"
+	_ "github.com/ingunawandra/mini-wallet/docs"
 	adaphttp "github.com/ingunawandra/mini-wallet/internal/adapter/http"
 	"github.com/ingunawandra/mini-wallet/internal/adapter/http/handler"
 	"github.com/ingunawandra/mini-wallet/internal/adapter/repository"
@@ -20,6 +24,15 @@ import (
 	infradb "github.com/ingunawandra/mini-wallet/internal/infrastructure/db"
 	"github.com/ingunawandra/mini-wallet/internal/infrastructure/token"
 )
+
+// @title Mini Wallet API
+// @version 1.0
+// @description REST API for user authentication and wallet operations.
+// @BasePath /api/v1
+// @schemes http https
+// @securityDefinitions.apikey BearerAuth
+// @in header
+// @name Authorization
 
 func main() {
 	cfg := config.Load()
@@ -61,6 +74,7 @@ func main() {
 
 	// Router
 	router := adaphttp.NewRouter(authHandler, walletHandler, tokenSvc)
+	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 
 	srv := &http.Server{
 		Addr:    ":" + cfg.ServerPort,
