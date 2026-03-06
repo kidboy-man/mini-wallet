@@ -30,9 +30,9 @@ func (h *WalletHandler) GetBalance(c *gin.Context) {
 	}
 
 	success(c, http.StatusOK, gin.H{
-		"balance":           wallet.Balance.StringFixed(4),
-		"locked_amount":     wallet.LockedAmount.StringFixed(4),
-		"available_balance": wallet.AvailableBalance().StringFixed(4),
+		"balance":           wallet.Balance.StringFixed(2),
+		"locked_amount":     wallet.LockedAmount.StringFixed(2),
+		"available_balance": wallet.AvailableBalance().StringFixed(2),
 	})
 }
 
@@ -59,7 +59,7 @@ func (h *WalletHandler) TopUp(c *gin.Context) {
 	if err == domain.ErrDuplicateReference && tx != nil {
 		success(c, http.StatusCreated, gin.H{
 			"transaction_id": tx.ID,
-			"balance":        wallet.Balance.StringFixed(4),
+			"balance":        wallet.Balance.StringFixed(2),
 		})
 		return
 	}
@@ -70,7 +70,7 @@ func (h *WalletHandler) TopUp(c *gin.Context) {
 
 	success(c, http.StatusCreated, gin.H{
 		"transaction_id": tx.ID,
-		"balance":        wallet.Balance.StringFixed(4),
+		"balance":        wallet.Balance.StringFixed(2),
 	})
 }
 
@@ -97,7 +97,7 @@ func (h *WalletHandler) Withdraw(c *gin.Context) {
 	if err == domain.ErrDuplicateReference && tx != nil {
 		success(c, http.StatusCreated, gin.H{
 			"transaction_id":    tx.ID,
-			"available_balance": wallet.AvailableBalance().StringFixed(4),
+			"available_balance": wallet.AvailableBalance().StringFixed(2),
 		})
 		return
 	}
@@ -108,7 +108,7 @@ func (h *WalletHandler) Withdraw(c *gin.Context) {
 
 	success(c, http.StatusCreated, gin.H{
 		"transaction_id":    tx.ID,
-		"available_balance": wallet.AvailableBalance().StringFixed(4),
+		"available_balance": wallet.AvailableBalance().StringFixed(2),
 	})
 }
 
@@ -136,7 +136,7 @@ func (h *WalletHandler) Transfer(c *gin.Context) {
 	if err == domain.ErrDuplicateReference && tx != nil {
 		success(c, http.StatusCreated, gin.H{
 			"transaction_id":    tx.ID,
-			"available_balance": wallet.AvailableBalance().StringFixed(4),
+			"available_balance": wallet.AvailableBalance().StringFixed(2),
 		})
 		return
 	}
@@ -147,7 +147,7 @@ func (h *WalletHandler) Transfer(c *gin.Context) {
 
 	success(c, http.StatusCreated, gin.H{
 		"transaction_id":    tx.ID,
-		"available_balance": wallet.AvailableBalance().StringFixed(4),
+		"available_balance": wallet.AvailableBalance().StringFixed(2),
 	})
 }
 

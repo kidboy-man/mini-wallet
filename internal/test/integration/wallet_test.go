@@ -28,9 +28,9 @@ func TestGetBalance_AfterRegister(t *testing.T) {
 	assert.True(t, resp["success"].(bool))
 
 	data := resp["data"].(map[string]any)
-	assert.Equal(t, "0.0000", data["balance"])
-	assert.Equal(t, "0.0000", data["locked_amount"])
-	assert.Equal(t, "0.0000", data["available_balance"])
+	assert.Equal(t, "0.00", data["balance"])
+	assert.Equal(t, "0.00", data["locked_amount"])
+	assert.Equal(t, "0.00", data["available_balance"])
 }
 
 func TestGetBalance_RequiresAuth(t *testing.T) {
@@ -65,7 +65,7 @@ func TestTopUp_Success(t *testing.T) {
 
 	data := resp["data"].(map[string]any)
 	assert.NotEmpty(t, data["transaction_id"])
-	assert.Equal(t, "500.0000", data["balance"])
+	assert.Equal(t, "500.00", data["balance"])
 }
 
 func TestTopUp_Idempotent(t *testing.T) {
@@ -94,7 +94,7 @@ func TestTopUp_Idempotent(t *testing.T) {
 
 	// Same transaction returned, balance not doubled
 	assert.Equal(t, txID1, txID2)
-	assert.Equal(t, "500.0000", resp2["data"].(map[string]any)["balance"])
+	assert.Equal(t, "500.00", resp2["data"].(map[string]any)["balance"])
 }
 
 func TestWithdraw_Success(t *testing.T) {
@@ -120,7 +120,7 @@ func TestWithdraw_Success(t *testing.T) {
 
 	data := resp["data"].(map[string]any)
 	assert.NotEmpty(t, data["transaction_id"])
-	assert.Equal(t, "300.0000", data["available_balance"])
+	assert.Equal(t, "300.00", data["available_balance"])
 }
 
 func TestWithdraw_InsufficientBalance(t *testing.T) {
@@ -201,7 +201,7 @@ func TestTransfer_Success(t *testing.T) {
 
 	data := resp["data"].(map[string]any)
 	assert.NotEmpty(t, data["transaction_id"])
-	assert.Equal(t, "400.0000", data["available_balance"]) // alice: 500 - 100
+	assert.Equal(t, "400.00", data["available_balance"]) // alice: 500 - 100
 
 	// Verify bob's balance
 	wBob := do("GET", "/api/v1/wallets/me/balance", "", bobToken)
@@ -210,7 +210,7 @@ func TestTransfer_Success(t *testing.T) {
 	var bobResp map[string]any
 	require.NoError(t, json.Unmarshal(wBob.Body.Bytes(), &bobResp))
 	bobData := bobResp["data"].(map[string]any)
-	assert.Equal(t, "100.0000", bobData["balance"])
+	assert.Equal(t, "100.00", bobData["balance"])
 }
 
 func TestTransfer_RecipientNotFound(t *testing.T) {
