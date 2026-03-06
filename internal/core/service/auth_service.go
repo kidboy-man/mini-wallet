@@ -40,7 +40,7 @@ func NewAuthService(
 func (s *authService) Register(ctx context.Context, username, password string) (*domain.User, error) {
 	hashed, err := bcrypt.GenerateFromPassword([]byte(password), s.bcryptCost)
 	if err != nil {
-		return nil, err
+		return nil, domain.ErrInternalServer(err)
 	}
 
 	now := time.Now().UTC()

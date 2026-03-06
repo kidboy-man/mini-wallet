@@ -1,11 +1,11 @@
 package token
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
+	"github.com/ingunawandra/mini-wallet/internal/core/domain"
 	"github.com/ingunawandra/mini-wallet/internal/core/port"
 )
 
@@ -41,7 +41,7 @@ func (s *jwtService) Generate(userID uuid.UUID, username string) (string, int64,
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	signed, err := token.SignedString(s.secret)
 	if err != nil {
-		return "", 0, fmt.Errorf("sign token: %w", err)
+		return "", 0, domain.ErrInternalServer(err)
 	}
 
 	return signed, expiresAt.Unix(), nil
@@ -50,22 +50,22 @@ func (s *jwtService) Generate(userID uuid.UUID, username string) (string, int64,
 func (s *jwtService) Validate(tokenStr string) (*port.TokenClaims, error) {
 	token, err := jwt.ParseWithClaims(tokenStr, &jwtClaims{}, func(t *jwt.Token) (any, error) {
 		if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, fmt.Errorf("unexpected signing method: %v", t.Header["alg"])
+			return nil, domain.ErrInvalidToken
 		}
 		return s.secret, nil
 	})
 	if err != nil {
-		return nil, fmt.Errorf("parse token: %w", err)
+		return nil, domain.ErrInvalidToken
 	}
 
 	claims, ok := token.Claims.(*jwtClaims)
 	if !ok || !token.Valid {
-		return nil, fmt.Errorf("invalid token claims")
+		return nil, domain.ErrInvalidToken
 	}
 
 	userID, err := uuid.Parse(claims.Subject)
 	if err != nil {
-		return nil, fmt.Errorf("invalid subject in token: %w", err)
+		return nil, domain.ErrInternalServer(err)
 	}
 
 	return &port.TokenClaims{

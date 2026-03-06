@@ -28,7 +28,10 @@ func (r *walletRepo) Create(ctx context.Context, wallet *domain.Wallet) error {
 		 VALUES ($1, $2, $3, $4, $5, $6, $7)`,
 		wallet.ID, wallet.UserID, wallet.Balance, wallet.LockedAmount, wallet.Version, wallet.CreatedAt, wallet.UpdatedAt,
 	)
-	return err
+	if err != nil {
+		return domain.ErrInternalServer(err)
+	}
+	return nil
 }
 
 func (r *walletRepo) FindByUserID(ctx context.Context, userID uuid.UUID) (*domain.Wallet, error) {
@@ -60,7 +63,7 @@ func (r *walletRepo) UpdateBalanceWithVersion(ctx context.Context, wallet *domai
 		wallet.Balance, wallet.LockedAmount, wallet.ID, wallet.Version,
 	)
 	if err != nil {
-		return err
+		return domain.ErrInternalServer(err)
 	}
 	if tag.RowsAffected() == 0 {
 		return domain.ErrOptimisticLock
@@ -76,7 +79,7 @@ func (r *walletRepo) SoftDelete(ctx context.Context, id uuid.UUID) error {
 		id,
 	)
 	if err != nil {
-		return err
+		return domain.ErrInternalServer(err)
 	}
 	if tag.RowsAffected() == 0 {
 		return domain.ErrWalletNotFound
@@ -91,7 +94,7 @@ func scanWallet(row pgx.Row) (*domain.Wallet, error) {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return nil, domain.ErrWalletNotFound
 		}
-		return nil, err
+		return nil, domain.ErrInternalServer(err)
 	}
 	return w, nil
 }

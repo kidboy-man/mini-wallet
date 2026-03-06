@@ -36,7 +36,7 @@ func (r *txRepo) Create(ctx context.Context, tx *domain.Transaction) error {
 		if errors.As(err, &pgErr) && pgErr.Code == "23505" {
 			return domain.ErrDuplicateReference
 		}
-		return err
+		return domain.ErrInternalServer(err)
 	}
 	return nil
 }
@@ -49,7 +49,7 @@ func (r *txRepo) UpdateStatus(ctx context.Context, id uuid.UUID, status domain.T
 		status, id, currentVersion,
 	)
 	if err != nil {
-		return err
+		return domain.ErrInternalServer(err)
 	}
 	if tag.RowsAffected() == 0 {
 		return domain.ErrOptimisticLock
@@ -91,7 +91,7 @@ func scanTransaction(row pgx.Row) (*domain.Transaction, error) {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return nil, nil
 		}
-		return nil, err
+		return nil, domain.ErrInternalServer(err)
 	}
 	return t, nil
 }

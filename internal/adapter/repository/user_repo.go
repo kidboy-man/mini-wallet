@@ -34,7 +34,7 @@ func (r *userRepo) Create(ctx context.Context, user *domain.User) error {
 		if errors.As(err, &pgErr) && pgErr.Code == "23505" {
 			return domain.ErrUserAlreadyExists
 		}
-		return err
+		return domain.ErrInternalServer(err)
 	}
 	return nil
 }
@@ -53,7 +53,7 @@ func (r *userRepo) FindByUsername(ctx context.Context, username string) (*domain
 		if errors.Is(err, pgx.ErrNoRows) {
 			return nil, domain.ErrUserNotFound
 		}
-		return nil, err
+		return nil, domain.ErrInternalServer(err)
 	}
 	return u, nil
 }
@@ -72,7 +72,7 @@ func (r *userRepo) FindByID(ctx context.Context, id uuid.UUID) (*domain.User, er
 		if errors.Is(err, pgx.ErrNoRows) {
 			return nil, domain.ErrUserNotFound
 		}
-		return nil, err
+		return nil, domain.ErrInternalServer(err)
 	}
 	return u, nil
 }
@@ -85,7 +85,7 @@ func (r *userRepo) SoftDelete(ctx context.Context, id uuid.UUID) error {
 		id,
 	)
 	if err != nil {
-		return err
+		return domain.ErrInternalServer(err)
 	}
 	if tag.RowsAffected() == 0 {
 		return domain.ErrUserNotFound
